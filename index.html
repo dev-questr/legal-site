@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en-GB"><head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="theme-color" content="#F5F1E6"/>
+<link rel="icon" href="/favicon.ico" sizes="any"/>
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png"/>
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"/>
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet"/>
+<title>Questr — Level up your life. And a cow.</title>
+<meta name="description" content="Adopt a little Highland cow and take on real-life side quests — do as many as you like, earn XP and coins, grow your cow, and post the best ones. Download Questr on the App Store."/>
+<meta property="og:title" content="Questr — Level up your life. And a cow."/>
+<meta property="og:description" content="Take on real-life side quests, earn XP, grow your cow, and post the best ones."/>
+<meta property="og:image" content="https://questr.tv/og.png"/>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://questr.tv/"/>
+<link rel="preload" as="image" href="./cow.webp" fetchpriority="high"/>
+<style>
+  *{box-sizing:border-box}
+  :root{
+    color-scheme:light;
+    --cream:#F5F1E6;--card:#FFFFFF;--ink:#4A2E1E;
+    --ink-muted:rgba(74,46,30,.62);--ink-faint:rgba(74,46,30,.40);
+    --orange:#F96E11;--orange-deep:#C75B23;
+    --pink:#E89AAE;--blue:#6E97C4;--green:#5BB97A;--yellow:#F2B705;
+    --border:rgba(74,46,30,.10);
+  }
+  html,body{margin:0;height:100%}
+  body{
+    background:
+      radial-gradient(120% 80% at 50% -10%,rgba(255,255,255,.9),transparent 60%),
+      var(--cream);
+    color:var(--ink);
+    font-family:"Poppins",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    font-weight:500;-webkit-font-smoothing:antialiased;overflow:hidden;
+  }
+  .stage{
+    position:relative;height:100vh;height:100svh;overflow:hidden;
+    display:flex;flex-direction:column;align-items:center;
+    gap:clamp(6px,1.6vh,16px);
+    padding:max(18px,env(safe-area-inset-top)) 22px max(14px,env(safe-area-inset-bottom)) 22px;
+  }
+  /* Ambient drifting confetti — decorative only */
+  .sky{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+  .p{position:absolute;width:var(--s);height:var(--s);opacity:.5;
+     animation:drift var(--dur) ease-in-out var(--d) infinite;will-change:transform}
+  .p.coin{border-radius:50%;background:radial-gradient(circle at 35% 30%,#FFD36B,var(--yellow) 55%,var(--orange));
+          box-shadow:0 4px 10px rgba(249,110,17,.28)}
+  .p.coin.sm{opacity:.42}
+  .p.spark{transform:rotate(45deg);border-radius:2px;opacity:.55}
+  .p.spark.pink{background:var(--pink)}.p.spark.blue{background:var(--blue)}.p.spark.green{background:var(--green)}
+  @keyframes drift{
+    0%{transform:translateY(0) rotate(0)}
+    50%{transform:translateY(-22px) rotate(12deg)}
+    100%{transform:translateY(0) rotate(0)}
+  }
+  /* Wordmark */
+  .brand{flex:0 0 auto;z-index:2}
+  .logo{width:clamp(104px,26vw,150px);height:auto;display:block}
+  /* Hero: the blinking bucket-hat cow */
+  .hero{position:relative;flex:1 1 0;min-height:0;width:100%;z-index:1;
+        display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .cow-wrap{position:relative;flex:1 1 0;min-height:0;width:100%;
+            display:flex;align-items:center;justify-content:center;isolation:isolate}
+  /* Figure hugs the cow so the ground shadow tracks it on every layout */
+  .cow-fig{position:relative;display:flex;align-items:flex-end;justify-content:center;
+           max-width:100%;max-height:100%}
+  /* Warm glow anchored behind the cow */
+  .cow-fig::before{
+    content:"";position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);
+    width:min(128vw,600px);aspect-ratio:1;z-index:-1;pointer-events:none;
+    background:radial-gradient(closest-side,rgba(249,110,17,.20),rgba(249,110,17,.08) 46%,transparent 72%);
+  }
+  .cow{
+    max-width:100%;max-height:100%;width:min(74vw,440px);height:auto;object-fit:contain;
+    filter:drop-shadow(0 24px 34px rgba(74,46,30,.20));
+    animation:bob 6s ease-in-out infinite;will-change:transform;
+  }
+  /* Soft elliptical ground shadow beneath the cow. The art's feet sit ~3.2% of
+     the image width right of centre (the hat/head balance the full-figure
+     centroid), so the shadow is offset to 53.2% to sit under the feet, not the
+     silhouette centre. Percentage-based → self-corrects at every render size. */
+  .cow-ground{
+    position:absolute;left:53.2%;bottom:-4px;transform:translateX(-50%);
+    width:66%;max-width:240px;height:clamp(12px,2.4vh,22px);z-index:-1;
+    background:radial-gradient(closest-side,rgba(74,46,30,.20),transparent 72%);
+    animation:squish 6s ease-in-out infinite;
+  }
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+  @keyframes squish{0%,100%{transform:translateX(-50%) scaleX(1);opacity:.9}50%{transform:translateX(-50%) scaleX(.88);opacity:.6}}
+  /* Copy block */
+  .copy{flex:0 0 auto;z-index:2;text-align:center;max-width:min(92vw,560px)}
+  .headline{margin:0;font-weight:800;letter-spacing:-.03em;line-height:1.05;
+            font-size:clamp(28px,6.4vw,52px)}
+  .headline .hl{color:var(--orange)}
+  .sub{margin:.7em auto 0;max-width:34ch;font-size:clamp(14px,2vw,19px);
+       font-weight:500;color:var(--ink-muted);line-height:1.45}
+  /* CTA buttons */
+  .cta{flex:0 0 auto;z-index:2;width:100%;max-width:380px;display:flex;flex-direction:column;gap:11px}
+  .btn{
+    display:flex;align-items:center;justify-content:center;gap:10px;
+    height:clamp(52px,7vh,60px);border-radius:999px;width:100%;
+    font-size:clamp(15px,1.7vw,17px);font-weight:700;text-decoration:none;
+    transition:transform .16s cubic-bezier(.34,1.56,.64,1),box-shadow .2s ease,background .2s ease;
+  }
+  .btn svg{width:19px;height:19px;flex:0 0 auto}
+  .btn:hover{transform:scale(1.03)}
+  .btn:active{transform:scale(.96)}
+  .btn-primary{background:var(--orange);color:#fff;box-shadow:0 12px 26px rgba(249,110,17,.34)}
+  .btn-primary:hover{box-shadow:0 16px 34px rgba(249,110,17,.44)}
+  .btn-secondary{background:var(--card);color:var(--ink);border:1px solid var(--border);
+                 box-shadow:0 8px 20px rgba(74,46,30,.10)}
+  .btn-secondary:hover{background:#FFFDF8}
+  .btn-secondary svg{color:#5865F2}
+  /* Footer small print */
+  .legal{flex:0 0 auto;z-index:2;width:100%;text-align:center;
+         font-size:clamp(11px,1.3vw,13px);color:var(--ink-faint);padding-top:4px}
+  .legal a{color:var(--ink-muted);text-decoration:none;font-weight:600}
+  .legal a:hover{color:var(--orange)}
+  .legal .sep{margin:0 7px;opacity:.4}
+  /* Desktop: two-column — cow left, copy + CTA right */
+  @media (min-width:901px){
+    .stage{
+      display:grid;
+      grid-template-columns:1.02fr .98fr;
+      grid-template-rows:1fr auto auto auto 1fr min-content;
+      grid-template-areas:"hero brand" "hero copy" "hero cta" "hero ." "hero ." "footer footer";
+      column-gap:clamp(28px,5vw,84px);align-items:center;
+      padding:36px clamp(40px,6vw,110px);
+    }
+    .hero{grid-area:hero;align-self:stretch;min-height:0}
+    .brand{grid-area:brand;align-self:end;justify-self:start;margin-bottom:8px}
+    .copy{grid-area:copy;text-align:left;align-self:start;justify-self:start;margin:0}
+    .copy .sub{margin-left:0}
+    .cta{grid-area:cta;align-self:start;justify-self:start;max-width:380px;margin-top:18px}
+    .legal{grid-area:footer}
+  }
+  /* Squashed landscape phones: two-column fallback */
+  @media (orientation:landscape) and (max-height:520px){
+    .stage{
+      display:grid;grid-template-columns:1.05fr .95fr;
+      grid-template-rows:auto 1fr auto min-content;
+      grid-template-areas:"hero brand" "hero copy" "hero cta" "footer footer";
+      column-gap:4vw;align-items:center;padding:14px 4vw;
+    }
+    .hero{grid-area:hero;align-self:stretch;min-height:0}
+    .brand{grid-area:brand;justify-self:start}
+    .copy{grid-area:copy;text-align:left;justify-self:start}
+    .headline{font-size:clamp(20px,4.4vw,32px)}
+    .cta{grid-area:cta;justify-self:start;max-width:320px}.legal{grid-area:footer}
+  }
+  /* Phones only — tighten so everything stays above the fold */
+  @media (max-width:600px){
+    .stage{gap:6px;padding-left:18px;padding-right:18px}
+    .logo{width:clamp(94px,25vw,124px)}
+    .cow{width:min(78vw,360px)}
+    .sub{margin-top:.55em}
+    .cta{gap:9px}
+    .btn{height:clamp(50px,6.6vh,56px)}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .cow,.cow-ground,.p{animation:none}
+  }
+</style></head>
+<body>
+<main class="stage">
+  <div class="sky" aria-hidden="true"><span class="p coin" style="left:8%;top:22%;--s:20px;--d:0s;--dur:13s"></span><span class="p coin" style="left:86%;top:30%;--s:14px;--d:3s;--dur:15s"></span><span class="p spark pink" style="left:18%;top:68%;--s:12px;--d:1.5s;--dur:11s"></span><span class="p spark blue" style="left:78%;top:62%;--s:14px;--d:4s;--dur:14s"></span><span class="p spark green" style="left:30%;top:14%;--s:10px;--d:2.5s;--dur:12s"></span><span class="p coin sm" style="left:92%;top:78%;--s:11px;--d:5s;--dur:16s"></span><span class="p spark pink" style="left:68%;top:12%;--s:9px;--d:0.8s;--dur:10s"></span><span class="p coin sm" style="left:12%;top:44%;--s:9px;--d:6s;--dur:17s"></span></div>
+  <div class="brand">
+    <img class="logo" src="./logo.webp" alt="Questr"/>
+  </div>
+  <section class="hero" aria-label="Meet your cow">
+    <div class="cow-wrap">
+      <div class="cow-fig">
+        <img class="cow" src="./cow.webp" alt="Your Highland cow in her cow-print bucket hat, blinking" draggable="false"/>
+        <span class="cow-ground" aria-hidden="true"></span>
+      </div>
+    </div>
+  </section>
+  <div class="copy">
+    <h1 class="headline">Do more with your days. Level up a <span class="hl">cow</span> while you're at it.</h1>
+    <p class="sub">Take on real-life side quests, earn XP, grow your cow, and post the best ones.</p>
+  </div>
+  <div class="cta">
+    <a class="btn btn-primary" href="https://apps.apple.com/us/app/questr-daily-quests/id6761934542"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M16.365 1.43c0 1.14-.493 2.27-1.177 3.08-.744.9-1.99 1.57-2.987 1.57-.12 0-.23-.02-.3-.03-.01-.06-.04-.22-.04-.39 0-1.15.572-2.27 1.206-2.98.804-.94 2.142-1.64 3.248-1.68.03.13.05.28.05.43zm4.565 15.71c-.03.07-.463 1.58-1.518 3.12-.945 1.34-1.94 2.71-3.43 2.71-1.517 0-1.9-.88-3.63-.88-1.698 0-2.302.91-3.67.91-1.377 0-2.332-1.26-3.428-2.8-1.287-1.82-2.323-4.63-2.323-7.28 0-4.28 2.797-6.55 5.552-6.55 1.448 0 2.675.95 3.6.95.865 0 2.222-1.01 3.902-1.01.613 0 2.886.06 4.374 2.19-.13.09-2.383 1.37-2.383 4.19 0 3.26 2.854 4.42 2.955 4.45z"/></svg>Download on the App Store</a>
+    <a class="btn btn-secondary" href="https://discord.gg/AAqXkAMdC4" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/></svg>Join the group chat</a>
+  </div>
+  <footer class="legal">
+    <a href="./privacy.html">Privacy</a><span class="sep">·</span><a href="./terms.html">Terms</a><span class="sep">·</span><a href="./community-guidelines.html">Community Guidelines</a><span class="sep">·</span><a href="./support.html">Support</a><span class="sep">·</span><span>© ViralCow LTD</span>
+  </footer>
+</main>
+</body></html>
